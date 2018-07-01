@@ -1,0 +1,8 @@
+- name: DNS replies
+  src: 8.8.8.8
+  dst: 192.168.1.12
+
+- name: DNS queries
+  src: 192.168.1.12
+  dst: 8.8.8.8
+  port: 53
