@@ -1,8 +1,29 @@
 - name: DNS replies
   src: 8.8.8.8
   dst: 192.168.1.12
+  sport: 53
 
 - name: DNS queries
   src: 192.168.1.12
   dst: 8.8.8.8
-  port: 53
+  dport: 53
+
+- name: HTTPS queries
+  src: 192.168.1.12
+  dport: 443
+
+- name: HTTPS replies
+  dst: 192.168.1.12
+  sport: 443
+
+- name: SSH queries
+  src: 192.168.1.12
+  dport: 22
+
+- name: SSH replies
+  dst: 192.168.1.12
+  sport: 22
+
+- name: HTTP requests
+  src: 192.168.1.12
+  dport: 80
