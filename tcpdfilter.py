@@ -3,6 +3,7 @@ import attr
 from argparse import ArgumentParser
 from scapy.all import rdpcap
 from prettytable import PrettyTable
+from collections import Counter
 
 import colorama
 from colorama import Fore, Back, Style
@@ -89,7 +90,7 @@ def packet_summary(packet, matching_rule=None):
                          matching_rule=matching_rule)
 
 def filter_packets(packets, rules):
-    output = {'whitelisted': set(), 'blacklisted': set()}
+    output = {'whitelisted': Counter(), 'blacklisted': Counter()}
 
     for packet in packets:
         if not 'IP' in packet:
@@ -97,11 +98,12 @@ def filter_packets(packets, rules):
 
         for rule in rules:
             if rule.matches(packet):
-                output['whitelisted'].add(packet_summary(packet,
-                                                         matching_rule=rule))
+                pkt = packet_summary(packet, matching_rule=rule)
+                output['whitelisted'].update((pkt, ))
                 break
         else:
-            output['blacklisted'].add(packet_summary(packet))
+            pkt = packet_summary(packet)
+            output['blacklisted'].update((pkt, ))
 
     return output
 
@@ -115,25 +117,25 @@ def main(whitelist_path, packet_capture_path):
     filtered_packets = filter_packets(packets, rules)
 
     print('Whitelisted:')
-    table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport', 'rule'))
-    for col in table.align:
-        table.align[col] = "r"
+    table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport', 'rule', 'count', '%'))
+    table.align = "r"
     table.align['rule'] = "l"
-    for row in filtered_packets['whitelisted']:
+    table_total = sum(filtered_packets['whitelisted'].values())
+    for row, count in filtered_packets['whitelisted'].items():
         table.add_row(
-            (row.src, row.dst, row.sport, row.dport, row.matching_rule.name)
+            (row.src, row.dst, row.sport, row.dport, row.matching_rule.name, count, '%.02f%%' % (count/table_total*100))
         )
     print(Fore.GREEN + str(table))
 
     print(Style.RESET_ALL)
     print('Blacklisted:')
 
-    table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport'))
-    for col in table.align:
-        table.align[col] = "r"
-    for row in filtered_packets['blacklisted']:
+    table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport', 'count', '%'))
+    table.align = "r"
+    table_total = sum(filtered_packets['blacklisted'].values())
+    for row, count in filtered_packets['blacklisted'].items():
         table.add_row(
-            (row.src, row.dst, row.sport, row.dport)
+            (row.src, row.dst, row.sport, row.dport, count, '%.02f%%' % (count/table_total*100))
         )
     print(Fore.RED + str(table))
     print(Style.RESET_ALL)
