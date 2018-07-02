@@ -120,6 +120,7 @@ def main(whitelist_path, packet_capture_path):
     table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport', 'rule', 'count', '%'))
     table.align = "r"
     table.align['rule'] = "l"
+    table.sortby = 'rule'
     table_total = sum(filtered_packets['whitelisted'].values())
     for row, count in filtered_packets['whitelisted'].items():
         table.add_row(
@@ -132,6 +133,8 @@ def main(whitelist_path, packet_capture_path):
 
     table = PrettyTable(field_names=('src', 'dst', 'sport', 'dport', 'count', '%'))
     table.align = "r"
+    table.sortby = 'count'
+    table.reversesort = True
     table_total = sum(filtered_packets['blacklisted'].values())
     for row, count in filtered_packets['blacklisted'].items():
         table.add_row(
