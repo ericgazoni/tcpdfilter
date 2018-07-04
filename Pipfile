@@ -8,9 +8,7 @@ name = "pypi"
 [packages]
 
 scapy = "*"
-ipython = "*"
 pyyaml = "*"
-pytest = "*"
 attrs = "*"
 colorama = "*"
 prettytable = "*"
@@ -18,6 +16,8 @@ prettytable = "*"
 
 [dev-packages]
 
+pytest = "*"
+ipython = "*"
 
 
 [requires]

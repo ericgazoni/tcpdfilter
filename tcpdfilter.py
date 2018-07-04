@@ -12,6 +12,15 @@ colorama.init()
 class UnreadableWhiteList(Exception):
     pass
 
+def tcp_or_udp(packet):
+    if not 'IP' in packet:
+        return False
+
+    for proto in ('TCP', 'UDP'):
+        if proto in packet:
+            return True
+    return False
+
 
 @attr.s(cmp=True, hash=True)
 class PacketSummary:
@@ -48,8 +57,8 @@ class WhitelistRule:
         )
 
     def matches(self, packet):
-        if not 'IP' in packet:
-            raise ValueError('this is not an IP packet')
+        if not tcp_or_udp(packet):
+            raise ValueError('this is not a TCP or UDP packet')
 
         ip_layer = packet['IP']
         for attribute in ('src', 'dst', 'sport', 'dport'):
@@ -93,7 +102,7 @@ def filter_packets(packets, rules):
     output = {'whitelisted': Counter(), 'blacklisted': Counter()}
 
     for packet in packets:
-        if not 'IP' in packet:
+        if not tcp_or_udp(packet):
             continue
 
         for rule in rules:
